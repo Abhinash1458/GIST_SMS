@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-intro">
+    <div>
+        <span class="eyebrow">Mentor workspace</span>
+        <h1>Welcome, {{ current_user.full_name }}</h1>
+        <p>Your mentees and academic progress in one place.</p>
+    </div>
+    <button class="btn btn-primary" type="button" disabled aria-disabled="true">
+        Mark attendance
+        <span class="day-button-label">Day 2</span>
+    </button>
+</div>
+
+{% if group %}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-5">
+            <div class="custom-card h-100">
+                <span class="eyebrow">Your mentor group</span>
+                <h2 class="section-heading">{{ group.name }}</h2>
+                <dl class="detail-list">
+                    <div class="detail-row">
+                        <dt>Section</dt>
+                        <dd>
+                            {{ section.name if section else 'Not assigned' }}
+                            {% if batch %}
+                                <span class="d-block text-muted small">Batch {{ batch.start_year }}</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Students</dt>
+                        <dd>{{ student_count }} out of {{ group.capacity }}</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Mentor</dt>
+                        <dd>{{ current_user.full_name }}</dd>
+                    </div>
+                </dl>
+
+                {% set occupancy = (student_count / group.capacity * 100) if group.capacity else 0 %}
+                <div class="progress mt-3" style="height: 8px"
+                     role="progressbar"
+                     aria-label="Mentor group capacity used"
+                     aria-valuemin="0"
+                     aria-valuemax="{{ group.capacity }}"
+                     aria-valuenow="{{ student_count }}">
+                    <div class="progress-bar" style="width: {{ occupancy if occupancy <= 100 else 100 }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="custom-card h-100">
+                <div class="section-heading-row">
+                    <h2 class="section-heading">Group snapshot</h2>
+                    <span class="status-pill status-active">{{ student_count }} students</span>
+                </div>
+                <p class="text-muted">
+                    Attendance becomes available when the Day 2 module is released.
+                    The student list below is already populated from the college database.
+                </p>
+                <div class="info-banner mt-4">
+                    <strong>Day 2:</strong>
+                    Mark attendance will be enabled here for this mentor group.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-card p-0">
+        <div class="section-heading-row p-3 mb-0 border-bottom">
+            <h2 class="section-heading">My students</h2>
+            <span class="kpi-caption mt-0">{{ student_count }} records</span>
+        </div>
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Roll number</th>
+                        <th scope="col">Student name</th>
+                        <th scope="col">Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td class="numeric fw-semibold">{{ student.roll_number }}</td>
+                            <td>{{ student.full_name }}</td>
+                            <td>
+                                <a href="tel:{{ student.phone }}" class="subtle-link">{{ student.phone }}</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="table-empty">No students are assigned to this group.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="custom-card text-center py-5">
+        <h2 class="section-heading">No mentor group assigned</h2>
+        <p class="text-muted mb-0">Ask your HOD to assign you to a section.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

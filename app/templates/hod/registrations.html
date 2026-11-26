@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set labels = {
+    "pending": "Pending",
+    "approved": "Approved",
+    "correction": "Sent back",
+    "rejected": "Rejected"
+} %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1" style="color:#0B2150">Registrations</h3>
+        <p class="text-muted mb-0">
+            Applications for
+            {% if department %}{{ department.code }} - {{ department.name }}{% else %}your department{% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- KPI cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Pending</div>
+            <div class="kpi-number">{{ kpis.pending }}</div>
+            <a href="/hod/registrations?status=pending" class="small fw-semibold">Review now →</a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Approved this year / intake</div>
+            <div class="kpi-number">
+                {{ kpis.approved_this_year }}<span class="text-muted fs-6"> / {{ kpis.intake }}</span>
+            </div>
+            <div class="progress mt-2" style="height:6px">
+                {% set pct = (kpis.approved_this_year / kpis.intake * 100) if kpis.intake else 0 %}
+                <div class="progress-bar bg-success" style="width:{{ pct if pct <= 100 else 100 }}%"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Sent back</div>
+            <div class="kpi-number" style="color:#5A3A99">{{ kpis.correction }}</div>
+            <a href="/hod/registrations?status=correction" class="small fw-semibold">View sent back →</a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Rejected</div>
+            <div class="kpi-number" style="color:#842029">{{ kpis.rejected }}</div>
+            <a href="/hod/registrations?status=rejected" class="small fw-semibold">View rejected →</a>
+        </div>
+    </div>
+</div>
+
+<!-- Status filter tabs -->
+<ul class="nav nav-tabs mb-3">
+    {% for tab in filter_tabs %}
+        <li class="nav-item">
+            <a class="nav-link {% if active_filter == tab.value %}active{% endif %}"
+               href="/hod/registrations{% if tab.value %}?status={{ tab.value }}{% endif %}">
+                {{ tab.label }}
+                <span class="badge bg-secondary ms-1">{{ tab.count }}</span>
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+
+<div class="custom-card p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background:#F4F6FA">
+                <tr>
+                    <th>Reference</th>
+                    <th>Name</th>
+                    <th>Quota</th>
+                    <th>Rank</th>
+                    <th>Inter %</th>
+                    <th>Documents</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in registrations %}
+                    {% set item = row.registration %}
+                    <tr>
+                        <td class="fw-semibold">{{ item.reference_no }}</td>
+                        <td>{{ item.full_name }}</td>
+                        <td>{{ item.quota }}</td>
+                        <td>{{ item.entrance_rank if item.entrance_rank is not none else '—' }}</td>
+                        <td>{{ '%.2f' | format(item.inter_percent) }}</td>
+                        <td>{{ row.documents_count }}/3</td>
+                        <td>
+                            <span class="status-pill status-{{ row.status }}">
+                                {{ labels.get(row.status, row.status | title) }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a href="/hod/registrations/{{ item.id }}"
+                                   class="btn btn-sm btn-outline-primary">View</a>
+                                {% if row.status == 'pending' %}
+                                    <form method="post"
+                                          action="/hod/registrations/{{ item.id }}/approve">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <a href="/hod/registrations/{{ item.id }}#decision"
+                                       class="btn btn-sm btn-outline-danger">Reject</a>
+                                    <a href="/hod/registrations/{{ item.id }}#decision"
+                                       class="btn btn-sm btn-outline-secondary">Send back</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            No registrations found for this filter.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

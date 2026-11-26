@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set docs = [
+    ("Photo", registration.photo_path),
+    ("Marks memo", registration.marks_memo_path),
+    ("ID proof", registration.id_proof_path)
+] %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <a href="/hod/registrations" class="text-decoration-none small">← All registrations</a>
+        <h3 class="fw-bold mb-1" style="color:#0B2150">{{ registration.full_name }}</h3>
+        <p class="text-muted mb-0">{{ registration.reference_no }}</p>
+    </div>
+    <span class="status-pill status-{{ status }}">
+        {{ {"pending": "Pending", "approved": "Approved", "correction": "Sent back", "rejected": "Rejected"}.get(status, status | title) }}
+    </span>
+</div>
+
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="custom-card h-100">
+            <h5 class="fw-bold mb-3" style="color:#0B2150">Application details</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="review-label">Full name</div>
+                    <div class="review-value">{{ registration.full_name }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Date of birth</div>
+                    <div class="review-value">{{ registration.dob }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Gender</div>
+                    <div class="review-value">{{ registration.gender }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Phone</div>
+                    <div class="review-value">{{ registration.phone }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Email</div>
+                    <div class="review-value">{{ registration.email }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Parent / guardian</div>
+                    <div class="review-value">{{ registration.parent_name }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Department</div>
+                    <div class="review-value">
+                        {% if department %}{{ department.code }} - {{ department.name }}{% else %}—{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Quota</div>
+                    <div class="review-value">{{ registration.quota }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-label">Entrance rank</div>
+                    <div class="review-value">{{ registration.entrance_rank if registration.entrance_rank is not none else '—' }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-label">10th percentage</div>
+                    <div class="review-value">{{ '%.2f' | format(registration.tenth_percent) }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-label">Intermediate percentage</div>
+                    <div class="review-value">{{ '%.2f' | format(registration.inter_percent) }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Submitted on</div>
+                    <div class="review-value">{{ registration.submitted_at.strftime('%d-%m-%Y %H:%M') }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="review-label">Documents uploaded</div>
+                    <div class="review-value">{{ documents_count }}/3</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="custom-card h-100 text-center">
+            <h5 class="fw-bold mb-3" style="color:#0B2150">Applicant photo</h5>
+            {% if registration.photo_path %}
+                <img src="/static/{{ registration.photo_path }}"
+                     alt="Photo of {{ registration.full_name }}"
+                     class="img-fluid rounded border"
+                     style="max-height:260px;object-fit:contain">
+            {% else %}
+                <p class="text-muted mb-0">No photo uploaded.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="custom-card mt-3">
+    <h5 class="fw-bold mb-3" style="color:#0B2150">Documents</h5>
+    <div class="d-flex flex-wrap gap-2">
+        {% for label, path in docs %}
+            {% if path %}
+                <a href="/static/{{ path }}" target="_blank" rel="noopener"
+                   class="btn btn-outline-primary">
+                    Open {{ label }} ↗
+                </a>
+            {% else %}
+                <span class="btn btn-outline-secondary disabled">{{ label }} missing</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% if status == 'pending' %}
+    <div class="custom-card mt-3" id="decision">
+        <h5 class="fw-bold mb-1" style="color:#0B2150">Decision</h5>
+        <p class="text-muted">Remarks are required to reject or send an application back.</p>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="border rounded p-3 h-100">
+                    <h6 class="fw-bold">Approve</h6>
+                    <p class="small text-muted">
+                        Creates the student account, roll number and login credentials.
+                    </p>
+                    <form method="post" action="/hod/registrations/{{ registration.id }}/approve">
+                        <button type="submit" class="btn btn-success w-100">Approve registration</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-3 h-100">
+                    <h6 class="fw-bold">Send back for correction</h6>
+                    <form method="post" action="/hod/registrations/{{ registration.id }}/correction">
+                        <label class="form-label small" for="correction-remarks">Remarks</label>
+                        <textarea class="form-control mb-2" id="correction-remarks"
+                                  name="remarks" rows="3" required
+                                  placeholder="What must the applicant correct?"></textarea>
+                        <button type="submit" class="btn btn-outline-primary w-100">Send back</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-3 h-100">
+                    <h6 class="fw-bold">Reject</h6>
+                    <form method="post" action="/hod/registrations/{{ registration.id }}/reject">
+                        <label class="form-label small" for="reject-remarks">Remarks</label>
+                        <textarea class="form-control mb-2" id="reject-remarks"
+                                  name="remarks" rows="3" required
+                                  placeholder="Reason for rejection"></textarea>
+                        <button type="submit" class="btn btn-outline-danger w-100">Reject application</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="custom-card mt-3">
+        <h5 class="fw-bold mb-3" style="color:#0B2150">Decision summary</h5>
+        <p class="mb-1"><strong>Status:</strong> {{ status | title }}</p>
+        <p class="mb-1">
+            <strong>Decided on:</strong>
+            {{ registration.decided_at.strftime('%d-%m-%Y %H:%M') if registration.decided_at else '—' }}
+        </p>
+        <p class="mb-0"><strong>Remarks:</strong> {{ registration.hod_remarks or '—' }}</p>
+        {% if status == 'approved' and registration.student_id %}
+            <a href="/hod/registrations" class="btn btn-sm btn-outline-success mt-3">
+                Back to registrations
+            </a>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}

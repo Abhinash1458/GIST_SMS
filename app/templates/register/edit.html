@@ -1,0 +1,10 @@
+{% extends "register/form.html" %}
+
+{% block form_intro %}
+<div class="alert alert-warning">
+  <h6 class="fw-bold mb-1">Your application was sent back for correction</h6>
+  <p class="mb-0">
+    {{ registration.hod_remarks or 'Please review your details and resubmit the application.' }}
+  </p>
+</div>
+{% endblock %}

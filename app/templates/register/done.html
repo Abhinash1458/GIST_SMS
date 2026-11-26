@@ -1,0 +1,70 @@
+{% extends "base_public.html" %}
+
+{% block body_class %}public-body-wide{% endblock %}
+{% block container_class %}public-container-wide{% endblock %}
+{% block card_class %}public-plain{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card border-0 shadow-sm mx-auto text-center p-4 p-md-5" style="max-width:650px">
+    <div class="display-4 mb-2" style="color:#198754">&#10004;</div>
+    <h2 class="fw-bold" style="color:#0B2150">Application submitted!</h2>
+    <p class="text-muted mt-2">Your registration has been received successfully.</p>
+
+    <p class="mb-2">Your application reference number is:</p>
+    <div class="p-3 rounded bg-light border mb-3">
+      <div class="ref-number" id="referenceNumber">{{ registration.reference_no }}</div>
+    </div>
+
+    <h5 class="text-danger fw-bold">Save this number to track your application</h5>
+    <p class="text-muted mb-3">
+      Your application is currently pending verification by the
+      department HOD.
+    </p>
+
+    <div class="d-flex flex-wrap gap-2 justify-content-center">
+      <button type="button" class="btn btn-outline-secondary" id="copyButton">
+        Copy reference number
+      </button>
+      <a href="/register/status?reference_no={{ registration.reference_no }}"
+         class="btn btn-primary">Track application</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-primary { background: #0B2150; border-color: #0B2150; }
+  .btn-primary:hover, .btn-primary:focus { background: #203D78; border-color: #203D78; }
+</style>
+
+<script>
+(() => {
+  const button = document.getElementById("copyButton");
+  const reference = document.getElementById("referenceNumber").textContent.trim();
+
+  async function copyReference() {
+    try {
+      await navigator.clipboard.writeText(reference);
+      return true;
+    } catch (error) {
+      const helper = document.createElement("textarea");
+      helper.value = reference;
+      helper.style.position = "fixed";
+      helper.style.opacity = "0";
+      document.body.appendChild(helper);
+      helper.select();
+      const copied = document.execCommand("copy");
+      document.body.removeChild(helper);
+      return copied;
+    }
+  }
+
+  button.addEventListener("click", async () => {
+    const original = button.textContent;
+    const copied = await copyReference();
+    button.textContent = copied ? "Copied!" : "Copy failed";
+    setTimeout(() => { button.textContent = original; }, 2000);
+  });
+})();
+</script>
+{% endblock %}

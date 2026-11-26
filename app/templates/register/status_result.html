@@ -1,0 +1,128 @@
+{% extends "base_public.html" %}
+
+{% block body_class %}public-body-wide{% endblock %}
+{% block container_class %}public-container-wide{% endblock %}
+{% block card_class %}public-plain{% endblock %}
+
+{% block content %}
+{% if status_value == 'approved' %}
+  {% set progress = 100 %}
+  {% set bar_color = '#198754' %}
+  {% set status_label = 'Approved' %}
+  {% set status_class = 'success' %}
+{% elif status_value == 'rejected' %}
+  {% set progress = 100 %}
+  {% set bar_color = '#DC3545' %}
+  {% set status_label = 'Rejected' %}
+  {% set status_class = 'danger' %}
+{% elif status_value == 'correction' %}
+  {% set progress = 50 %}
+  {% set bar_color = '#C9A227' %}
+  {% set status_label = 'Sent back for correction' %}
+  {% set status_class = 'warning' %}
+{% else %}
+  {% set progress = 50 %}
+  {% set bar_color = '#0B2150' %}
+  {% set status_label = 'Submitted - waiting for HOD review' %}
+  {% set status_class = 'secondary' %}
+{% endif %}
+
+<div class="container py-4">
+  <div class="card border-0 shadow-sm mx-auto p-4 p-md-5" style="max-width:800px">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+      <div>
+        <h3 class="fw-bold mb-1" style="color:#0B2150">Application status</h3>
+        <p class="text-muted mb-0">Reference number</p>
+        <h4 class="fw-bold mb-0">{{ registration.reference_no }}</h4>
+      </div>
+      <span class="badge text-bg-{{ status_class }} px-3 py-2">{{ status_label }}</span>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row g-3">
+      <div class="col-sm-6">
+        <div class="review-label">Applicant</div>
+        <div class="review-value">{{ registration.full_name }}</div>
+      </div>
+      <div class="col-sm-6">
+        <div class="review-label">Department</div>
+        <div class="review-value">{{ department.code }} - {{ department.name }}</div>
+      </div>
+      <div class="col-sm-6">
+        <div class="review-label">Admission quota</div>
+        <div class="review-value">{{ registration.quota }}</div>
+      </div>
+      <div class="col-sm-6">
+        <div class="review-label">Submitted on</div>
+        <div class="review-value">{{ registration.submitted_at.strftime('%d-%m-%Y') }}</div>
+      </div>
+    </div>
+
+    <h5 class="mt-4 mb-3" style="color:#0B2150">Application progress</h5>
+
+    <div class="d-flex justify-content-between small fw-semibold mb-2">
+      <span>Submitted</span>
+      <span>With {{ department.code }} HOD</span>
+      <span>
+        {% if status_value == 'approved' %}Approved
+        {% elif status_value == 'rejected' %}Rejected
+        {% elif status_value == 'correction' %}Sent back
+        {% else %}Decision{% endif %}
+      </span>
+    </div>
+
+    <div class="progress" style="height:14px" role="progressbar"
+         aria-label="Application progress" aria-valuenow="{{ progress }}"
+         aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" style="width:{{ progress }}%; background:{{ bar_color }}"></div>
+    </div>
+
+    <div class="alert alert-light border mt-4 mb-0">
+      <strong>Current status:</strong> {{ status_label }}
+    </div>
+
+    {% if status_value == 'correction' %}
+      <div class="alert alert-warning mt-3">
+        <h6 class="fw-bold">HOD remarks</h6>
+        <p>{{ registration.hod_remarks or 'Please review and correct your application.' }}</p>
+        <a href="/register/status/edit/{{ registration.reference_no }}"
+           class="btn btn-primary">Edit and resubmit</a>
+      </div>
+    {% endif %}
+
+    {% if status_value == 'rejected' %}
+      <div class="alert alert-danger mt-3">
+        <h6 class="fw-bold">HOD remarks</h6>
+        <p class="mb-0">{{ registration.hod_remarks or 'No remarks provided.' }}</p>
+      </div>
+    {% endif %}
+
+    {% if status_value == 'approved' %}
+      <div class="alert alert-success mt-3">
+        <h5 class="fw-bold">Your application is approved!</h5>
+        {% if student %}
+          <p class="mb-0">
+            Your roll number is: <strong>{{ student.roll_number }}</strong>
+          </p>
+        {% else %}
+          <p class="mb-0">
+            Your application is approved. Your roll number is being processed.
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      <a href="/register/status" class="btn btn-outline-secondary">Check another application</a>
+      <a href="/register" class="btn btn-outline-secondary">New registration</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-primary { background: #0B2150; border-color: #0B2150; }
+  .btn-primary:hover, .btn-primary:focus { background: #203D78; border-color: #203D78; }
+</style>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-intro">
+    <div>
+        <span class="eyebrow">Student workspace</span>
+        <h1>Welcome, {{ first_name }}</h1>
+        <p>Your academic profile, mentor and latest campus update.</p>
+    </div>
+    <span class="status-pill status-active">{{ status }}</span>
+</div>
+
+{% if student %}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="kpi-card h-100">
+                <div class="kpi-label">Roll number</div>
+                <div class="kpi-number is-text">{{ student.roll_number }}</div>
+                <div class="kpi-caption">
+                    {{ department.code if department else '—' }} · Section {{ section.name if section else '—' }}
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="kpi-card h-100 kpi-success">
+                <div class="kpi-label">Year and semester</div>
+                <div class="kpi-number">
+                    Year {{ section.current_year if section else '—' }}
+                    <span class="fs-6">· Sem {{ section.current_semester if section else '—' }}</span>
+                </div>
+                <div class="kpi-caption">
+                    Batch {{ batch.start_year if batch else '—' }}
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="kpi-card h-100 kpi-warning">
+                <div class="kpi-label">Attendance</div>
+                <div class="kpi-number is-text">Starts on Day 2</div>
+                <div class="kpi-caption">Daily attendance is not active yet.</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="kpi-card h-100">
+                <div class="kpi-label">Status</div>
+                <div class="kpi-number is-text">{{ status }}</div>
+                <div class="kpi-caption">Current student status</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-5">
+            <div class="custom-card h-100">
+                <h2 class="section-heading">My details</h2>
+                <dl class="detail-list">
+                    <div class="detail-row">
+                        <dt>Name</dt>
+                        <dd>{{ student.full_name }}</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Branch</dt>
+                        <dd>
+                            {{ department.code if department else '—' }}
+                            {% if department %}
+                                <span class="d-block text-muted small">{{ department.name }}</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Quota</dt>
+                        <dd>{{ student.quota }}</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>Parent name</dt>
+                        <dd>{{ student.parent_name }}</dd>
+                    </div>
+                    <div class="detail-row">
+                        <dt>City</dt>
+                        <dd>{{ student.city or 'Not recorded' }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="custom-card h-100">
+                <h2 class="section-heading">My mentor</h2>
+                {% if mentor %}
+                    <dl class="detail-list">
+                        <div class="detail-row">
+                            <dt>Mentor</dt>
+                            <dd>{{ mentor.full_name }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Email</dt>
+                            <dd><a class="subtle-link" href="mailto:{{ mentor.email }}">{{ mentor.email }}</a></dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Group</dt>
+                            <dd>{{ mentor_group.name if mentor_group else 'Not assigned' }}</dd>
+                        </div>
+                    </dl>
+                {% else %}
+                    <p class="text-muted mb-0">A mentor has not been assigned yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="custom-card h-100 notice-card">
+                <span class="eyebrow">Latest notice</span>
+                {% if latest_notice %}
+                    <h2 class="section-heading">{{ latest_notice.title }}</h2>
+                    <p class="text-muted">{{ latest_notice.body }}</p>
+                    <span class="notice-date">
+                        {{ latest_notice.created_at.strftime('%d %b %Y') }}
+                    </span>
+                {% else %}
+                    <h2 class="section-heading">No notices yet</h2>
+                    <p class="text-muted mb-0">New college notices will appear here.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="custom-card text-center py-5">
+        <h2 class="section-heading">Student profile not found</h2>
+        <p class="text-muted mb-0">Contact the academic office to complete your profile.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

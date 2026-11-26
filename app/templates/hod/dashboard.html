@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-intro">
+    <div>
+        <span class="eyebrow">Department overview</span>
+        <h1>Hello, {{ current_user.full_name }}</h1>
+        <p>
+            {% if department %}
+                {{ department.code }} · {{ department.name }}
+            {% else %}
+                No department is assigned to your account.
+            {% endif %}
+        </p>
+    </div>
+    <a href="/hod/registrations" class="btn btn-primary">Review registrations</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Students</div>
+            <div class="kpi-number">{{ dashboard.student_count }}</div>
+            <div class="kpi-caption">In your department only</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100 kpi-success">
+            <div class="kpi-label">Sections</div>
+            <div class="kpi-number">{{ dashboard.section_count }}</div>
+            <div class="kpi-caption">Across all admission years</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100 kpi-warning">
+            <div class="kpi-label">Mentor groups</div>
+            <div class="kpi-number">{{ dashboard.mentor_group_count }}</div>
+            <div class="kpi-caption">Active groups in your department</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100 kpi-danger">
+            <div class="kpi-label">Pending registrations</div>
+            <div class="kpi-number">{{ dashboard.pending_count }}</div>
+            <div class="kpi-caption">Waiting for your review</div>
+        </div>
+    </div>
+</div>
+
+{% if dashboard.unassigned_sections %}
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"
+         role="alert">
+        <div>
+            <strong>Mentor group warning:</strong>
+            {{ dashboard.unassigned_sections | length }} section(s) contain students
+            without a mentor group.
+            <span class="d-block small mt-1">
+                {% for row in dashboard.unassigned_sections %}
+                    {{ row.batch.start_year }} {{ row.section.name }}
+                    ({{ row.unassigned_count }} students){% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </span>
+        </div>
+        <a class="btn btn-outline-dark" href="/hod/mentor-groups">Review mentor groups</a>
+    </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="custom-card h-100 p-0">
+            <div class="section-heading-row p-3 mb-0 border-bottom">
+                <h2 class="section-heading">Sections and mentor groups</h2>
+                <span class="kpi-caption mt-0">{{ dashboard.section_count }} sections</span>
+            </div>
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Batch</th>
+                            <th scope="col">Section</th>
+                            <th scope="col">Current position</th>
+                            <th scope="col">Students</th>
+                            <th scope="col">Mentor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in dashboard.section_rows %}
+                            <tr>
+                                <td>
+                                    <strong>{{ row.batch.start_year }}</strong>
+                                    <span class="d-block text-muted small">Batch</span>
+                                </td>
+                                <td>{{ row.section.name }}</td>
+                                <td>
+                                    Year {{ row.section.current_year }},
+                                    semester {{ row.section.current_semester }}
+                                </td>
+                                <td class="numeric fw-semibold">{{ row.student_count }}</td>
+                                <td>
+                                    {{ row.mentor_name }}
+                                    {% if row.mentor_group %}
+                                        <span class="d-block text-muted small">{{ row.mentor_group.name }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="table-empty">No sections are available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="custom-card h-100">
+            <h2 class="section-heading">Registration workload</h2>
+            <dl class="detail-list">
+                <div class="detail-row">
+                    <dt>Pending review</dt>
+                    <dd>{{ counts.pending }}</dd>
+                </div>
+                <div class="detail-row">
+                    <dt>Approved</dt>
+                    <dd>{{ counts.approved }}</dd>
+                </div>
+                <div class="detail-row">
+                    <dt>Sent back</dt>
+                    <dd>{{ counts.correction }}</dd>
+                </div>
+                <div class="detail-row">
+                    <dt>Rejected</dt>
+                    <dd>{{ counts.rejected }}</dd>
+                </div>
+            </dl>
+
+            <a href="/hod/registrations?status=pending"
+               class="btn btn-outline-primary w-100 mt-3">
+                Open pending applications
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "sqladmin/base.html" %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-center vh-100"
+     style="background:#F4F6FA">
+    <form class="card card-md col-lg-5 col-md-7"
+          action="/admin/login" method="POST" autocomplete="off">
+        <div class="card-body">
+            <div class="text-center mb-3">
+                <h2 class="fw-bold mb-0" style="color:#0B2150">GIST SMS</h2>
+                <div class="text-muted small">SQLADMIN</div>
+            </div>
+
+            <h3 class="card-title text-center mb-4">Management sign in</h3>
+
+            {% if error %}
+                <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label" for="admin-username">Username</label>
+                <input id="admin-username" name="username" type="text"
+                       class="form-control {% if error %}is-invalid{% endif %}"
+                       placeholder="Enter username" autocomplete="off" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="admin-password">Password</label>
+                <input id="admin-password" name="password" type="password"
+                       class="form-control {% if error %}is-invalid{% endif %}"
+                       placeholder="Password" autocomplete="off" required>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100"
+                        style="background:#0B2150;border-color:#0B2150">
+                    Login to SQLADMIN
+                </button>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="/login">Back to main login</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

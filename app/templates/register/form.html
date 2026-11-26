@@ -1,0 +1,377 @@
+{% extends "base_public.html" %}
+
+{% block body_class %}public-body-wide{% endblock %}
+{% block container_class %}public-container-wide{% endblock %}
+{% block card_class %}public-plain{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold" style="color:#0B2150">Student Registration</h2>
+    <p class="text-muted mb-0">Complete all four steps to submit your application.</p>
+  </div>
+
+  <div class="card border-0 shadow-sm mx-auto" style="max-width:950px">
+    <div class="card-body p-4 p-md-5">
+
+      {% block form_intro %}{% endblock %}
+
+      {% if error %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+      {% endif %}
+
+      <div class="reg-steps" role="tablist" aria-label="Registration steps">
+        <button type="button" class="reg-step step-tab" data-step="0">
+          <span class="reg-step-num">1</span><span>Personal</span>
+        </button>
+        <button type="button" class="reg-step step-tab" data-step="1">
+          <span class="reg-step-num">2</span><span>Academic</span>
+        </button>
+        <button type="button" class="reg-step step-tab" data-step="2">
+          <span class="reg-step-num">3</span><span>Documents</span>
+        </button>
+        <button type="button" class="reg-step step-tab" data-step="3">
+          <span class="reg-step-num">4</span><span>Review</span>
+        </button>
+      </div>
+
+      <form method="post"
+            action="{% if registration %}/register/status/edit/{{ registration.reference_no }}{% else %}/register{% endif %}"
+            enctype="multipart/form-data" id="registrationForm">
+
+        <section class="form-step">
+          <h5 class="mb-3" style="color:#0B2150">Personal details</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="full_name">Full name *</label>
+              <input class="form-control" id="full_name" name="full_name" required
+                     maxlength="150" value="{{ values.get('full_name','') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="dob">Date of birth *</label>
+              <input type="date" class="form-control" id="dob" name="dob" required
+                     max="{{ latest_dob }}" value="{{ values.get('dob','') }}">
+              <small class="text-muted">Applicant must be at least 16 years old.</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="gender">Gender *</label>
+              <select class="form-select" id="gender" name="gender" required>
+                <option value="">Select gender</option>
+                {% for item in ['Male', 'Female', 'Other'] %}
+                  <option value="{{ item }}" {% if values.get('gender') == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="phone">Phone number *</label>
+              <input class="form-control" id="phone" name="phone" inputmode="numeric"
+                     maxlength="10" pattern="[0-9]{10}" required
+                     placeholder="10-digit mobile number"
+                     value="{{ values.get('phone','') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="email">Email address *</label>
+              <input type="email" class="form-control" id="email" name="email" required
+                     maxlength="150" value="{{ values.get('email','') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="parent_name">Parent / Guardian name *</label>
+              <input class="form-control" id="parent_name" name="parent_name" required
+                     maxlength="150" value="{{ values.get('parent_name','') }}">
+            </div>
+          </div>
+        </section>
+
+        <section class="form-step d-none">
+          <h5 class="mb-3" style="color:#0B2150">Academic details</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="department_id">Department / Branch *</label>
+              <select class="form-select" id="department_id" name="department_id" required>
+                <option value="">Select department</option>
+                {% for department in departments %}
+                  <option value="{{ department.id }}"
+                    {% if values.get('department_id')|string == department.id|string %}selected{% endif %}>
+                    {{ department.code }} - {{ department.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="quota">Admission quota *</label>
+              <select class="form-select" id="quota" name="quota" required>
+                <option value="">Select quota</option>
+                {% for item in ['Convener', 'Management', 'Other'] %}
+                  <option value="{{ item }}" {% if values.get('quota') == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="entrance_rank">Entrance rank</label>
+              <input type="number" min="1" class="form-control" id="entrance_rank"
+                     name="entrance_rank" placeholder="Optional"
+                     value="{{ values.get('entrance_rank','') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="tenth_percent">10th percentage *</label>
+              <input type="number" min="0" max="100" step="0.01" class="form-control"
+                     id="tenth_percent" name="tenth_percent" required
+                     value="{{ values.get('tenth_percent','') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="inter_percent">Intermediate percentage *</label>
+              <input type="number" min="0" max="100" step="0.01" class="form-control"
+                     id="inter_percent" name="inter_percent" required
+                     value="{{ values.get('inter_percent','') }}">
+            </div>
+          </div>
+        </section>
+
+        <section class="form-step d-none">
+          <h5 class="mb-3" style="color:#0B2150">Upload documents</h5>
+          <p class="text-muted">JPG, JPEG, PNG or PDF only. Maximum 2 MB per file.</p>
+
+          <div class="mb-3">
+            <label class="form-label" for="photo">Student photo {% if not registration %}*{% endif %}</label>
+            <input type="file" class="form-control" id="photo" name="photo"
+                   accept=".jpg,.jpeg,.png,.pdf" {% if not registration %}required{% endif %}>
+            <div class="text-danger small mt-1" id="photoError"></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="marks_memo">Marks memo {% if not registration %}*{% endif %}</label>
+            <input type="file" class="form-control" id="marks_memo" name="marks_memo"
+                   accept=".jpg,.jpeg,.png,.pdf" {% if not registration %}required{% endif %}>
+            <div class="text-danger small mt-1" id="marks_memoError"></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="id_proof">ID proof {% if not registration %}*{% endif %}</label>
+            <input type="file" class="form-control" id="id_proof" name="id_proof"
+                   accept=".jpg,.jpeg,.png,.pdf" {% if not registration %}required{% endif %}>
+            <div class="text-danger small mt-1" id="id_proofError"></div>
+          </div>
+
+          {% if registration %}
+            <div class="alert alert-info mb-0">
+              Leave a document empty to keep the file you submitted earlier.
+            </div>
+          {% endif %}
+        </section>
+
+        <section class="form-step d-none">
+          <h5 class="mb-3" style="color:#0B2150">Review and submit</h5>
+          <p class="text-muted">Check your details before submitting. Use the steps above to make changes.</p>
+
+          <div class="row g-3" id="reviewList"></div>
+
+          <div class="alert alert-light border mt-4 mb-3">
+            Your application will be sent to the selected department's HOD for verification.
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="confirmDetails" required>
+            <label class="form-check-label" for="confirmDetails">
+              I confirm that the information provided is correct.
+            </label>
+          </div>
+        </section>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <button type="button" class="btn btn-outline-secondary" id="previousBtn" disabled>Previous</button>
+          <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+          <button type="submit" class="btn btn-primary d-none" id="submitBtn">
+            {% if registration %}Resubmit application{% else %}Submit application{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-primary { background: #0B2150; border-color: #0B2150; }
+  .btn-primary:hover, .btn-primary:focus { background: #203D78; border-color: #203D78; }
+  .form-control:focus, .form-select:focus {
+    border-color: #0B2150;
+    box-shadow: 0 0 0 .2rem rgba(11, 33, 80, .12);
+  }
+</style>
+
+<script>
+(() => {
+  const form = document.getElementById("registrationForm");
+  const steps = Array.from(document.querySelectorAll(".form-step"));
+  const tabs = Array.from(document.querySelectorAll(".step-tab"));
+  const previous = document.getElementById("previousBtn");
+  const next = document.getElementById("nextBtn");
+  const submit = document.getElementById("submitBtn");
+  const reviewList = document.getElementById("reviewList");
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+  const ALLOWED = ["jpg", "jpeg", "png", "pdf"];
+
+  let current = Math.min(
+    Math.max(parseInt("{{ step|default(0) }}", 10) || 0, 0),
+    steps.length - 1
+  );
+
+  const reviewFields = [
+    ["full_name", "Full name"],
+    ["dob", "Date of birth"],
+    ["gender", "Gender"],
+    ["phone", "Phone number"],
+    ["email", "Email address"],
+    ["parent_name", "Parent / Guardian"],
+    ["department_id", "Department / Branch"],
+    ["quota", "Admission quota"],
+    ["entrance_rank", "Entrance rank"],
+    ["tenth_percent", "10th percentage"],
+    ["inter_percent", "Intermediate percentage"]
+  ];
+
+  const fileFields = [
+    ["photo", "Student photo"],
+    ["marks_memo", "Marks memo"],
+    ["id_proof", "ID proof"]
+  ];
+
+  function showStep(index) {
+    current = index;
+    steps.forEach((step, i) => step.classList.toggle("d-none", i !== index));
+    tabs.forEach((tab, i) => {
+      tab.classList.toggle("is-active", i === index);
+      tab.classList.toggle("is-done", i < index);
+    });
+    previous.disabled = index === 0;
+    next.classList.toggle("d-none", index === steps.length - 1);
+    submit.classList.toggle("d-none", index !== steps.length - 1);
+    if (index === steps.length - 1) buildReview();
+  }
+
+  function validStep() {
+    for (const field of steps[current].querySelectorAll("input, select, textarea")) {
+      if (!field.checkValidity()) {
+        field.reportValidity();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function fieldValue(name) {
+    const field = form.elements[name];
+    if (!field) return "";
+    if (field.tagName === "SELECT") {
+      return field.selectedOptions.length ? field.selectedOptions[0].text.trim() : "";
+    }
+    return field.value.trim();
+  }
+
+  function addReviewRow(label, value, muted) {
+    const column = document.createElement("div");
+    column.className = "col-sm-6";
+
+    const labelNode = document.createElement("div");
+    labelNode.className = "review-label";
+    labelNode.textContent = label;
+
+    const valueNode = document.createElement("div");
+    valueNode.className = muted ? "review-value text-muted" : "review-value";
+    valueNode.textContent = value;
+
+    column.appendChild(labelNode);
+    column.appendChild(valueNode);
+    reviewList.appendChild(column);
+  }
+
+  function buildReview() {
+    reviewList.innerHTML = "";
+
+    for (const [name, label] of reviewFields) {
+      addReviewRow(label, fieldValue(name) || "—", false);
+    }
+
+    for (const [name, label] of fileFields) {
+      const input = form.elements[name];
+      let value = "";
+      let muted = false;
+
+      if (input && input.files && input.files.length) {
+        value = input.files[0].name;
+      } else if (input && input.dataset.existing === "1") {
+        value = "Keeping previously uploaded file";
+        muted = true;
+      } else {
+        value = "Not selected";
+        muted = true;
+      }
+
+      addReviewRow(label, value, muted);
+    }
+  }
+
+  form.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener("change", () => {
+      const feedback = document.getElementById(input.name + "Error");
+      const file = input.files && input.files[0];
+      if (!feedback) return;
+
+      feedback.textContent = "";
+
+      if (!file) return;
+
+      const extension = file.name.split(".").pop().toLowerCase();
+
+      if (!ALLOWED.includes(extension)) {
+        feedback.textContent = "Only JPG, JPEG, PNG and PDF files are allowed.";
+        input.value = "";
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        feedback.textContent =
+          "This file is " + (file.size / (1024 * 1024)).toFixed(1) +
+          " MB. Maximum allowed is 2 MB.";
+        input.value = "";
+      }
+    });
+  });
+
+  {% if registration %}
+  form.querySelectorAll('input[type="file"]').forEach(input => {
+    const existing = {
+      photo: {{ 'true' if registration.photo_path else 'false' }},
+      marks_memo: {{ 'true' if registration.marks_memo_path else 'false' }},
+      id_proof: {{ 'true' if registration.id_proof_path else 'false' }}
+    };
+    if (existing[input.name]) input.dataset.existing = "1";
+  });
+  {% endif %}
+
+  next.addEventListener("click", () => {
+    if (validStep()) showStep(Math.min(current + 1, steps.length - 1));
+  });
+
+  previous.addEventListener("click", () => {
+    showStep(Math.max(current - 1, 0));
+  });
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const index = parseInt(tab.dataset.step, 10);
+      if (index <= current || validStep()) showStep(index);
+    });
+  });
+
+  form.addEventListener("submit", event => {
+    if (!validStep()) {
+      event.preventDefault();
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = "Submitting...";
+  });
+
+  showStep(current);
+})();
+</script>
+{% endblock %}

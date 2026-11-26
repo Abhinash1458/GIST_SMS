@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-intro">
+    <div>
+        <span class="eyebrow">Institution overview</span>
+        <h1>Welcome, {{ current_user.full_name }}</h1>
+        <p>Live academic and admissions data across every department.</p>
+    </div>
+    <a href="/admin" class="btn btn-primary">Open admin screens</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Total students</div>
+            <div class="kpi-number">{{ dashboard.total_students }}</div>
+            <div class="kpi-caption">All student records</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100 kpi-success">
+            <div class="kpi-label">Students per year</div>
+            <div class="kpi-number">{{ dashboard.students_per_year }}</div>
+            <div class="kpi-caption">
+                Average across {{ dashboard.year_count }} admission years
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100 kpi-warning">
+            <div class="kpi-label">Departments</div>
+            <div class="kpi-number">{{ dashboard.total_departments }}</div>
+            <div class="kpi-caption">Academic departments</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card h-100 kpi-danger">
+            <div class="kpi-label">Pending registrations</div>
+            <div class="kpi-number">{{ dashboard.pending_registrations }}</div>
+            <div class="kpi-caption">Across all departments</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-7">
+        <div class="custom-card h-100">
+            <div class="section-heading-row">
+                <h2 class="section-heading">Students per department</h2>
+                <span class="kpi-caption mt-0">{{ dashboard.total_students }} students total</span>
+            </div>
+
+            <div class="bar-chart" role="img"
+                 aria-label="Bar chart showing student count for each department">
+                {% for row in dashboard.department_rows %}
+                    <div class="bar-chart-row">
+                        <span class="bar-chart-label">{{ row.department.code }}</span>
+                        <div class="bar-track"
+                             aria-hidden="true">
+                            <div class="bar-fill" style="width: {{ row.chart_percent }}%"></div>
+                        </div>
+                        <span class="bar-value">{{ row.student_count }}</span>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No departments are available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="custom-card h-100">
+            <h2 class="section-heading">Students by admission year</h2>
+            <div class="year-breakdown">
+                {% for row in dashboard.students_by_year %}
+                    <span class="year-chip">
+                        <strong>{{ row.year }}</strong> · {{ row.count }} students
+                    </span>
+                {% else %}
+                    <span class="text-muted">No admission years are available.</span>
+                {% endfor %}
+            </div>
+
+            <div class="info-banner mt-4">
+                <strong>Admissions snapshot:</strong>
+                {{ dashboard.pending_registrations }} applications are waiting for HOD review.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="custom-card p-0">
+    <div class="section-heading-row p-3 mb-0 border-bottom">
+        <h2 class="section-heading">Department summary</h2>
+        <a class="subtle-link" href="/admin/department/list">Manage departments</a>
+    </div>
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th scope="col">Department</th>
+                    <th scope="col">Head of Department</th>
+                    <th scope="col">Students</th>
+                    <th scope="col">Pending registrations</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in dashboard.department_rows %}
+                    <tr>
+                        <td>
+                            <strong>{{ row.department.code }}</strong>
+                            <span class="d-block text-muted small">{{ row.department.name }}</span>
+                        </td>
+                        <td>{{ row.hod_name }}</td>
+                        <td class="numeric fw-semibold">{{ row.student_count }}</td>
+                        <td>
+                            <span class="status-pill status-pending">{{ row.pending_count }}</span>
+                        </td>
+                        <td class="text-end">
+                            <a class="subtle-link" href="/admin/department/list">View</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="table-empty">No departments are available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

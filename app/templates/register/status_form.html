@@ -1,0 +1,39 @@
+{% extends "base_public.html" %}
+
+{% block body_class %}public-body-wide{% endblock %}
+{% block container_class %}public-container-wide{% endblock %}
+{% block card_class %}public-plain{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card border-0 shadow-sm mx-auto p-4 p-md-5" style="max-width:600px">
+    <h3 class="fw-bold mb-2" style="color:#0B2150">Track your application</h3>
+    <p class="text-muted">Enter the reference number you received after registration.</p>
+
+    {% if error %}
+      <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/register/status">
+      <label class="form-label" for="reference_no">Application reference number</label>
+      <input class="form-control mb-3" id="reference_no" name="reference_no"
+             placeholder="REG-2026-00001" value="{{ reference_no }}"
+             autocomplete="off" required autofocus>
+      <button class="btn btn-primary w-100" type="submit">Check status</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a href="/register">New student registration</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-primary { background: #0B2150; border-color: #0B2150; }
+  .btn-primary:hover, .btn-primary:focus { background: #203D78; border-color: #203D78; }
+  .form-control:focus {
+    border-color: #0B2150;
+    box-shadow: 0 0 0 .2rem rgba(11, 33, 80, .12);
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base_public.html" %}
+
+{% block body_class %}public-body-wide{% endblock %}
+{% block container_class %}public-container-wide{% endblock %}
+{% block card_class %}public-plain{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card border-0 shadow-sm mx-auto text-center p-5" style="max-width:550px">
+    <h3 class="fw-bold" style="color:#0B2150">Application not found</h3>
+    <p class="text-muted">Please check your reference number and try again.</p>
+    <a href="/register/status" class="btn btn-primary">Track application</a>
+  </div>
+</div>
+
+<style>
+  .btn-primary { background: #0B2150; border-color: #0B2150; }
+  .btn-primary:hover, .btn-primary:focus { background: #203D78; border-color: #203D78; }
+</style>
+{% endblock %}

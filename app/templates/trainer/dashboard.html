@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-intro">
+    <div>
+        <span class="eyebrow">External trainer workspace</span>
+        <h1>Welcome, {{ current_user.full_name }}</h1>
+        <p>Your teaching assignments and section strength, straight from the database.</p>
+    </div>
+    <button class="btn btn-primary" type="button" disabled aria-disabled="true">
+        Enter marks
+        <span class="day-button-label">Day 3</span>
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-4">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Teaching assignments</div>
+            <div class="kpi-number">{{ dashboard.assignment_count }}</div>
+            <div class="kpi-caption">Subject and section combinations</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-4">
+        <div class="kpi-card h-100 kpi-success">
+            <div class="kpi-label">Students covered</div>
+            <div class="kpi-number">{{ dashboard.total_students }}</div>
+            <div class="kpi-caption">Across all assigned sections</div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-4">
+        <div class="custom-card h-100">
+            <div class="kpi-label">Marks entry</div>
+            <div class="kpi-number is-text">Available on Day 3</div>
+            <div class="kpi-caption">The action is intentionally disabled for now.</div>
+        </div>
+    </div>
+</div>
+
+<div class="custom-card p-0">
+    <div class="section-heading-row p-3 mb-0 border-bottom">
+        <h2 class="section-heading">My teaching assignments</h2>
+        <span class="kpi-caption mt-0">{{ dashboard.assignment_count }} assignments</span>
+    </div>
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Section</th>
+                    <th scope="col">Batch</th>
+                    <th scope="col">Students</th>
+                    <th scope="col">Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in dashboard.assignments %}
+                    <tr>
+                        <td>
+                            <strong>{{ row.subject.name if row.subject else 'Unassigned subject' }}</strong>
+                            <span class="d-block text-muted small">{{ row.subject.code if row.subject else '—' }}</span>
+                        </td>
+                        <td>
+                            {{ row.section.name if row.section else '—' }}
+                            {% if row.department %}
+                                <span class="d-block text-muted small">{{ row.department.code }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.batch.start_year if row.batch else '—' }}</td>
+                        <td class="numeric fw-semibold">{{ row.student_count }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    type="button"
+                                    disabled
+                                    aria-disabled="true">
+                                Enter marks
+                                <span class="day-button-label">Day 3</span>
+                            </button>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="table-empty">No teaching assignments are available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

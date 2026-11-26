@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if notice and not result %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="alert alert-warning border py-4">
+                <h4 class="fw-bold mb-2">No action taken</h4>
+                <p class="mb-3">{{ notice }}</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/hod/registrations/{{ registration.id }}"
+                       class="btn btn-outline-primary">Back to application</a>
+                    <a href="/hod/registrations" class="btn btn-outline-secondary">
+                        All registrations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-success border-success py-3 mb-4">
+        <h3 class="fw-bold mb-1">
+            {{ registration.full_name }} is now a student of {{ result.department_code }}
+        </h3>
+        <p class="mb-0">
+            Registration {{ registration.reference_no }} has been approved and the
+            student account is ready.
+        </p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="custom-card h-100">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <h5 class="fw-bold mb-0" style="color:#0B2150">Student credentials</h5>
+                    <span class="status-pill status-approved">Approved</span>
+                </div>
+
+                <div class="text-center border rounded py-4 mb-4" style="background:#F4F6FA">
+                    <div class="kpi-label">Roll number</div>
+                    <div class="ref-number">{{ result.roll_number }}</div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="review-label">Login username</div>
+                        <div class="review-value">{{ result.username }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="review-label">Temporary password</div>
+                        <div class="review-value">
+                            <code class="fs-6">{{ result.temporary_password }}</code>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="review-label">Section</div>
+                        <div class="review-value">{{ result.section_name }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="review-label">Mentor group</div>
+                        <div class="review-value">
+                            {{ result.mentor_group_name or 'Not assigned yet' }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="review-label">Mentor name</div>
+                        <div class="review-value">
+                            {{ result.mentor_name or 'Not assigned yet' }}
+                        </div>
+                    </div>
+                </div>
+
+                {% if not result.mentor_group_name %}
+                    <div class="alert alert-warning mt-4 mb-0">
+                        <strong>Warning:</strong> Create a new mentor group for this section.
+                    </div>
+                {% endif %}
+
+                <div class="alert alert-warning mt-3 mb-0 small">
+                    <strong>Shown once:</strong> copy the temporary password now. It is not
+                    displayed again. The student will be asked to change it at first login.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="custom-card h-100">
+                <h5 class="fw-bold mb-3" style="color:#0B2150">How the roll number is built</h5>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge bg-primary fs-5 px-3 py-2">{{ result.year_part }}</span>
+                    <span class="badge bg-success fs-5 px-3 py-2">{{ result.branch_code }}</span>
+                    <span class="badge bg-warning text-dark fs-5 px-3 py-2">{{ result.serial_label }}</span>
+                </div>
+
+                <ol class="list-unstyled mb-0">
+                    <li class="mb-3">
+                        <strong>Year — {{ result.year_part }}</strong>
+                        <div class="text-muted small">
+                            Last two digits of the {{ result.batch_year }} admission year.
+                        </div>
+                    </li>
+                    <li class="mb-3">
+                        <strong>Branch code — {{ result.branch_code }}</strong>
+                        <div class="text-muted small">
+                            Department code for {{ result.department_name }}.
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Serial — {{ result.serial_label }}</strong>
+                        <div class="text-muted small">
+                            Serial number {{ result.serial }} for this branch and year.
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mt-4">
+        <a href="/hod/registrations" class="btn btn-primary"
+           style="background:#0B2150;border-color:#0B2150">
+            Back to registrations
+        </a>
+        <a href="/hod" class="btn btn-outline-secondary">HOD dashboard</a>
+    </div>
+{% endif %}
+
+{% endblock %}

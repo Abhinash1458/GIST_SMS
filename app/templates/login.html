@@ -1,0 +1,193 @@
+
+<!-- app/templates/login.html -->
+
+{% extends "base_public.html" %}
+
+{% block content %}
+
+<style>
+    .public-container {
+        max-width: 900px;
+    }
+
+    .public-card {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .login-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 450px;
+    }
+
+    .login-left {
+        background: #0B2150;
+        color: white;
+        padding: 45px 35px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-left h2 {
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .login-left p {
+        color: #DCE4F5;
+        line-height: 1.7;
+    }
+
+    .login-register {
+        color: #E3C45C;
+        font-weight: 600;
+        margin-top: 35px;
+    }
+
+    .login-register:hover {
+        color: white;
+    }
+
+    .login-right {
+        padding: 45px 35px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-title {
+        color: #0B2150;
+        font-weight: 700;
+    }
+
+    .login-button {
+        background: #0B2150;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .login-button:hover {
+        background: #203D78;
+        color: white;
+    }
+
+    @media(max-width: 650px) {
+        .login-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .login-left,
+        .login-right {
+            padding: 30px 25px;
+        }
+    }
+</style>
+
+<div class="login-layout">
+
+    <!-- LEFT PANEL -->
+
+    <div class="login-left">
+
+        <h2>GIST SMS</h2>
+
+        <h3>
+            One login.<br>
+            Your own dashboard.
+        </h3>
+
+        <p>
+            A centralized Student Management System
+            for GIST.
+
+            Access your academic information,
+            attendance and campus activities
+            from one place.
+        </p>
+
+        <a href="/register" class="login-register">
+            New first-year student? Register here
+        </a>
+
+    </div>
+
+
+    <!-- RIGHT PANEL -->
+
+    <div class="login-right">
+
+        <h3 class="login-title">
+            Welcome Back
+        </h3>
+
+        <p class="text-muted mb-4">
+            Please sign in to continue.
+        </p>
+
+
+        {% if error %}
+
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        <form method="POST" action="/login">
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    name="username"
+                    class="form-control"
+                    placeholder="Email or Roll Number"
+                    value="{{ username | default('') }}"
+                    required
+                    autofocus
+                >
+
+            </div>
+
+
+            <div class="mb-4">
+
+                <label class="form-label">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Enter your password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn login-button w-100"
+            >
+                Login
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="custom-card text-center py-5">
+            <div class="access-icon mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle">
+                <svg viewBox="0 0 24 24" width="30" height="30"
+                     fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                    <path d="M12 9v4M12 17h.01" />
+                    <path d="M10.3 3.7 2.7 17a2 2 0 0 0 1.73 3h15.14a2 2 0 0 0 1.73-3L13.7 3.7a2 2 0 0 0-3.4 0Z" />
+                </svg>
+            </div>
+            <h1 class="section-heading">This dashboard is not allowed</h1>
+            <p class="text-muted mb-4">{{ message }}</p>
+            <a href="{{ role_home | default('/login') }}" class="btn btn-primary">
+                Go to my dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
